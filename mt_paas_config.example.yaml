@@ -1,0 +1,268 @@
+# ============================================================
+# Multi-Tenant PaaS 서비스 설정 파일
+# ============================================================
+#
+# 서비스 업체는 이 파일을 복사하여 mt_paas_config.yaml로 저장하고
+# 자신의 서비스에 맞게 수정하세요.
+#
+# 환경변수 참조: ${ENV_VAR_NAME} 형식으로 사용
+# 환경별 오버라이드: mt_paas_config.dev.yaml, mt_paas_config.prod.yaml
+#
+
+# ============================================================
+# 서비스 기본 정보
+# ============================================================
+service:
+  # 서비스 고유 ID (마켓에서 발급)
+  id: "my_service"
+
+  # 서비스 표시명
+  name: "My Service"
+
+  # 서비스 버전
+  version: "1.0.0"
+
+  # 서비스 설명
+  description: "서비스 설명을 입력하세요"
+
+# ============================================================
+# Service Market 연동
+# ============================================================
+marketplace:
+  # 마켓 API URL
+  api_url: "https://market.k-university.ai/api/v1"
+
+  # 마켓에서 발급받은 API 키
+  api_key: "${MARKETPLACE_API_KEY}"
+
+  # 상태 보고 주기 (초)
+  heartbeat_interval: 60
+
+  # 구독 상태 체크 활성화
+  subscription_check: true
+
+  # 구독 만료 후 유예 기간 (시간)
+  grace_period_hours: 24
+
+# ============================================================
+# 테넌트 격리 방식
+# ============================================================
+isolation:
+  # 격리 모드 선택:
+  #
+  # DATABASE_PER_TENANT (권장)
+  #   - 단일 애플리케이션, 테넌트별 DB 분리
+  #   - 리소스 효율적
+  #   - 대부분의 서비스에 적합
+  #
+  # DOCKER_PER_TENANT
+  #   - 테넌트별 완전히 독립된 컨테이너
+  #   - 최고 수준의 격리
+  #   - 대형 기관, 보안 요구 높은 경우
+  #
+  # SCHEMA_PER_TENANT
+  #   - 단일 DB, 테넌트별 스키마 분리
+  #   - 중간 수준 격리
+  #
+  mode: "DATABASE_PER_TENANT"
+
+  # Docker-Per-Tenant 전용 설정
+  docker:
+    # 테넌트별 포트 범위 시작점
+    port_range_start: 10200
+
+    # 테넌트당 할당 포트 수
+    port_range_size: 100
+
+    # Docker Compose 템플릿 경로
+    compose_template: "templates/docker-compose.template.yml"
+
+# ============================================================
+# 데이터베이스 설정
+# ============================================================
+database:
+  # Central DB (테넌트 메타정보, 공통 데이터)
+  central:
+    url: "postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/mt_paas_central"
+    pool_size: 10
+    pool_overflow: 5
+
+  # Tenant DB 설정
+  tenant:
+    # {tenant_id}가 실제 테넌트 ID로 치환됨
+    url_template: "postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/tenant_{tenant_id}"
+    pool_size_per_tenant: 5
+
+  # Vector DB 설정 (RAG 서비스용, 선택)
+  vector:
+    # 지원: qdrant, chroma, milvus
+    type: "qdrant"
+    url: "http://localhost:6333"
+    # 테넌트별 컬렉션 prefix
+    collection_prefix: "tenant_"
+
+  # Redis 설정 (캐시, 세션용, 선택)
+  redis:
+    url: "redis://localhost:6379"
+    # 테넌트별 DB 번호 할당
+    db_per_tenant: true
+
+# ============================================================
+# 테넌트 식별 방법
+# ============================================================
+tenant_identification:
+  # 우선순위 순서대로 시도
+  # 첫 번째로 성공한 방법 사용
+  methods:
+    # 1. HTTP 헤더에서 추출
+    - type: "header"
+      name: "X-Tenant-ID"
+
+    # 2. 서브도메인에서 추출 (hallym.service.k-university.ai)
+    - type: "subdomain"
+      extract_pattern: "^([^.]+)"
+
+    # 3. JWT 토큰의 클레임에서 추출
+    - type: "jwt_claim"
+      claim_name: "tenant_id"
+
+    # 4. 쿼리 파라미터에서 추출 (?tenant_id=xxx)
+    - type: "query_param"
+      name: "tenant_id"
+
+# ============================================================
+# 인증 설정
+# ============================================================
+auth:
+  # JWT 설정
+  jwt:
+    secret: "${JWT_SECRET}"
+    algorithm: "HS256"
+    expiry_hours: 24
+    refresh_expiry_days: 7
+
+  # 마켓 SSO 연동 (선택)
+  marketplace_sso:
+    enabled: true
+    callback_url: "/auth/marketplace/callback"
+
+  # 비밀번호 해싱
+  password:
+    algorithm: "bcrypt"
+    rounds: 12
+
+# ============================================================
+# 기능 플래그 (요금제별 제어)
+# ============================================================
+features:
+  # true: 마켓 구독 정보에서 자동으로 기능 활성화/비활성화
+  # false: 아래 defaults 값 사용
+  controlled_by_subscription: true
+
+  # 기본값 (구독 정보 없거나 연결 실패 시)
+  defaults:
+    ai_chat: true
+    file_upload: true
+    rag: false
+    discussion: false
+    quiz: false
+    api_integration: false
+    custom_branding: false
+    priority_support: false
+
+# ============================================================
+# 보안 설정
+# ============================================================
+security:
+  # 테넌트 간 접근 시도 감시 및 보고
+  cross_tenant_audit: true
+
+  # 민감 데이터 암호화 (DB 저장 시)
+  encryption:
+    enabled: true
+    key: "${AES_SECRET_KEY}"
+    algorithm: "AES-256-GCM"
+
+  # Rate Limiting
+  rate_limit:
+    enabled: true
+    # 요금제별 설정 (requests per minute)
+    by_plan:
+      free: 30
+      basic: 60
+      standard: 120
+      premium: 300
+      enterprise: 1000
+    # 기본값
+    default_rpm: 60
+
+  # CORS 설정
+  cors:
+    enabled: true
+    allow_origins:
+      - "https://*.k-university.ai"
+    allow_credentials: true
+
+# ============================================================
+# 로깅 및 모니터링
+# ============================================================
+logging:
+  # 로그 레벨: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+  # 로그 포맷: json, text
+  format: "json"
+
+  # 파일 로깅 (선택)
+  file:
+    enabled: false
+    path: "/var/log/mt_paas/service.log"
+    rotation: "daily"
+    retention_days: 30
+
+  # 활동 로그 (LRS/xAPI)
+  activity_log:
+    enabled: true
+    endpoint: "https://lrs.k-university.ai/xapi"
+    batch_size: 100
+    flush_interval_seconds: 10
+
+  # 사용량 보고 (마켓으로 전송)
+  usage_report:
+    enabled: true
+    interval_minutes: 5
+    metrics:
+      - "api_calls"
+      - "active_users"
+      - "storage_usage"
+      - "llm_tokens"
+
+# ============================================================
+# 서비스별 커스텀 설정
+# ============================================================
+# 서비스 업체가 자유롭게 추가 가능
+# framework.get_config("custom.xxx")로 접근
+custom:
+  # 예시: LLM 설정
+  llm:
+    default_model: "gpt-4"
+    fallback_model: "gpt-3.5-turbo"
+    max_tokens: 2000
+    temperature: 0.7
+
+  # 예시: RAG 설정
+  rag:
+    chunk_size: 500
+    chunk_overlap: 50
+    top_k: 5
+    reranker: true
+
+  # 예시: 파일 업로드 제한
+  upload:
+    max_file_size_mb: 50
+    allowed_extensions:
+      - "pdf"
+      - "docx"
+      - "txt"
+      - "png"
+      - "jpg"

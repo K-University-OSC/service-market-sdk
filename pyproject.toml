@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mt-paas"
+version = "0.1.0"
+description = "Multi-Tenant Platform as a Service for Service Marketplace"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Service Marketplace Team", email = "dev@k-university.ai"}
+]
+keywords = ["multi-tenant", "paas", "saas", "fastapi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.100.0",
+    "sqlalchemy>=2.0.0",
+    "asyncpg>=0.28.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.0",
+    "httpx>=0.24.0",
+    "redis>=4.5.0",
+    "tenacity>=8.2.0",
+]
+
+[project.optional-dependencies]
+llm = [
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+    "google-generativeai>=0.3.0",
+]
+vectordb = [
+    "qdrant-client>=1.7.0",
+    "chromadb>=0.4.0",
+]
+embedding = [
+    "sentence-transformers>=2.2.0",
+]
+all = [
+    "mt-paas[llm,vectordb,embedding]",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/k-university/multi_tenant_paas"
+Documentation = "https://docs.k-university.ai/mt-paas"
+Repository = "https://github.com/k-university/multi_tenant_paas"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mt_paas*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
