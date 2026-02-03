@@ -4,7 +4,7 @@
 
 ## 개요
 
-이 모듈은 service_market에서 판매하는 여러 서비스(keli_tutor, llm_chatbot, advisor 등)가
+이 모듈은 service_market에서 판매하는 여러 서비스가
 공통으로 사용할 수 있는 멀티테넌트 인프라를 제공합니다.
 
 ### 왜 필요한가?
@@ -265,24 +265,6 @@ from multi_tenant.core import TenantManager  # 공통 모듈 사용
 # llm_chatbot/backend/core/middleware/tenant.py
 from multi_tenant.middleware import TenantMiddleware  # 공통 모듈 사용
 ```
-
-## 로드맵
-
-### Phase 1: Core 모듈 (현재)
-- [x] 프로젝트 구조 설계
-- [ ] TenantManager 구현
-- [ ] Middleware 구현
-- [ ] 기본 Provider 구현
-
-### Phase 2: 서비스 연동
-- [ ] llm_chatbot 마이그레이션
-- [ ] advisor 마이그레이션
-- [ ] keli_tutor 연동
-
-### Phase 3: 고급 기능
-- [ ] Service Marketplace 자동 동기화
-- [ ] 사용량 기반 과금
-- [ ] 테넌트별 리소스 제한
 
 ## 관련 문서
 
