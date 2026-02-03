@@ -43,3 +43,14 @@ htmlcov/
 # Misc
 *.log
 .DS_Store
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Sensitive files
+*.pem
+*.key
+credentials.json
+secrets.json
