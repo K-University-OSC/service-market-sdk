@@ -1,11 +1,16 @@
-# Multi-Tenant PaaS
+# 🎓 Service Market SDK
 
-> Service Market에서 제공하는 공통 멀티테넌트 Platform as a Service
+> **K-University Open Source Community (K-OSC)**
+> 서비스 마켓 연동을 위한 웹훅 통합 SDK 및 멀티테넌트 프로비저닝 라이브러리
 
-## 개요
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-이 모듈은 service_market에서 판매하는 여러 서비스가
-공통으로 사용할 수 있는 멀티테넌트 인프라를 제공합니다.
+## 🚀 개요
+
+**service-market-sdk**는 한림대학교 AI 에듀테크 센터가 주관하는 'K-고등교육 모델'의 핵심 기술 인프라입니다.
+
+교육 기관(대학)이 AI 서비스를 신청하면, 자동으로 해당 기관 전용 테넌트 환경을 생성하고 관리하는 기능을 제공합니다.
 
 ### 왜 필요한가?
 
@@ -266,7 +271,30 @@ from multi_tenant.core import TenantManager  # 공통 모듈 사용
 from multi_tenant.middleware import TenantMiddleware  # 공통 모듈 사용
 ```
 
-## 관련 문서
+## 🤝 파트너 참여
 
-- [Service Marketplace 개발자 가이드](../service_market/docs/developer-guide-complete.md)
-- [테넌트 온보딩 프로세스](../service_market/docs/tenant-onboarding-process.md)
+한림대학교의 K-고등교육 모델 기술 생태계에 참여하고 싶으시다면:
+
+1. **이 저장소를 Fork** 하세요
+2. **[파트너 참여 등록](../../issues/new?template=partner_participation.md)** 이슈를 생성하세요
+3. 기술 검토 및 협력을 진행합니다
+
+### 파트너 혜택
+- 한림대학교 **'K-고등교육 모델'의 공식 기술 파트너** 등록
+- 글로컬대학 사업 성과 공유회 및 포럼 우선 초청
+- 기술 협력 및 공동 개발 기회
+
+## 📚 관련 문서
+
+- [Service Market 연동 매뉴얼](SERVICE_MARKET_INTEGRATION_MANUAL_20250201.md)
+- [Simulator 사용 가이드](sandbox/simulator/README_20250201.md)
+- [CONTRIBUTING](CONTRIBUTING.md)
+
+## 📧 문의
+
+- **Email:** hallym.aiedtech@gmail.com
+- **Organization:** [K-University-OSC](https://github.com/K-University-OSC)
+- **Managed by:** 한림대학교 AI 에듀테크 센터
+
+---
+© 2025 Hallym University AI EdTech Center. Licensed under MIT.
