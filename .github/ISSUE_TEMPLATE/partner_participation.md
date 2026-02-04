@@ -1,21 +1,19 @@
-
 ---
 name: "🤝 Partner Participation (공식 참여 등록)"
 about: "한림대학교 글로컬대학 30 사업 기술 파트너십 참여를 공식 등록합니다."
 title: "[Partner] 기관/기업명 입력"
-labels: ["partner-participation", "verified"]
+labels: partner-participation
 assignees: ""
-
 ---
 
 ## 🏢 파트너 기관/기업 정보
-- **기관/기업명:** 
-- **담당 부서:** 
-- **홈페이지:** 
+- **기관/기업명:**
+- **담당 부서:**
+- **홈페이지:**
 
 ## 🚀 참여 확인 (Proof of Participation)
-- **Fork 완료된 저장소 URL:** 
-> (예: https://github.com/company-org/multi_tenant_paas)
+- **Fork 완료된 저장소 URL:**
+> (예: https://github.com/company-org/service-market-sdk)
 
 ## 🛠 주요 협업 및 기술 검토 분야
 - [ ] AI 서비스 엔진 (AI Tutor/Advisor)
