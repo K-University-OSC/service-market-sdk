@@ -16,7 +16,7 @@ assignees: ""
 > (예: https://github.com/company-org/service-market-sdk)
 
 ## 🛠 주요 협업 및 기술 검토 분야
-- [ ] AI 서비스 엔진 (AI Tutor/Advisor)
+- [ ] AI 서비스
 - [ ] 멀티테넌트 PaaS 인프라
 - [ ] 데이터 파이프라인 및 LRS 연동
 - [ ] 기타 (아래에 작성)
