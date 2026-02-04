@@ -1,0 +1,71 @@
+name: Welcome Partner
+
+on:
+  issues:
+    types: [opened]
+  fork:
+
+jobs:
+  welcome-issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Welcome Partner Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueTitle = context.payload.issue.title;
+            const issueLabels = context.payload.issue.labels.map(l => l.name);
+
+            // Check if it's a partner participation issue
+            if (issueTitle.includes('[Partner]') || issueLabels.includes('partner-participation')) {
+              const welcomeMessage = `
+## 🎉 환영합니다!
+
+**K-University Open Source Community (K-OSC)**에 파트너 참여 신청을 해주셔서 감사합니다.
+
+한림대학교 AI 에듀테크 센터에서 검토 후 연락드리겠습니다.
+
+### 📋 다음 단계
+1. ✅ 참여 신청 완료
+2. ⏳ 한림대학교 검토 (영업일 기준 3일 이내)
+3. 🤝 기술 협력 미팅 일정 조율
+4. 🚀 공동 개발 및 기술 검토 시작
+
+### 📚 참고 자료
+- [Service Market 연동 매뉴얼](https://github.com/K-University-OSC/service-market-sdk/blob/main/SERVICE_MARKET_INTEGRATION_MANUAL_20250201.md)
+- [Simulator 사용 가이드](https://github.com/K-University-OSC/service-market-sdk/tree/main/sandbox/simulator)
+
+---
+**Contact:** hallym.aiedtech@gmail.com
+**Managed by:** 한림대학교 AI 에듀테크 센터
+              `;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: welcomeMessage
+              });
+
+              // Add 'under-review' label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['under-review']
+              });
+            }
+
+  notify-fork:
+    if: github.event_name == 'fork'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Fork Event
+        run: |
+          echo "🎉 New fork detected!"
+          echo "Fork owner: ${{ github.event.forkee.owner.login }}"
+          echo "Fork repo: ${{ github.event.forkee.full_name }}"
+          echo "Fork URL: ${{ github.event.forkee.html_url }}"
