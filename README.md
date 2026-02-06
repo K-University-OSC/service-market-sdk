@@ -350,7 +350,7 @@ from mt_paas.standard_api import (
 
 서비스가 여러 대학교(테넌트)를 운영할 때, **테넌트별 DB를 자동으로 생성하고 관리**하는 모듈입니다.
 
-**누가 쓰나?** → 서비스 개발자 (Advisor, KELI Tutor 등)
+**누가 쓰나?** → 서비스 개발자 (Advisor, LLM-chatbot 등)
 **언제 쓰나?** → 대학교마다 별도 DB를 만들어서 데이터를 완전히 분리하고 싶을 때
 
 ```
@@ -391,7 +391,7 @@ from mt_paas.standard_api import (
 │  DB 구조:                                                          │
 │  ┌─────────────┐    ┌────────────┐  ┌────────────┐  ┌──────────┐ │
 │  │  중앙 DB      │    │ tenant_한림 │  │ tenant_광주 │  │ tenant_N │ │
-│  │ (테넌트 목록) │    │ (한림대 전용)│  │ (광주대 전용)│  │ (N대 전용)│ │
+│  │ (테넌트 목록) │    │ (한림대 전용)│  │ (광서대 전용)│  │ (N대 전용)│ │
 │  │ - tenants    │    │ - 채팅 기록 │  │ - 채팅 기록 │  │ - ...    │ │
 │  │ - 구독 정보  │    │ - 문서      │  │ - 문서      │  │          │ │
 │  │ - 사용 로그  │    │ - 사용자    │  │ - 사용자    │  │          │ │
@@ -434,10 +434,10 @@ lifecycle.on(LifecycleEvent.AFTER_SUSPEND,
 │  한림대 사용자 ──→ GET /data                                   │
 │                    헤더: X-Tenant-ID: hallym                   │
 │                         │                                      │
-│  광주대 사용자 ──→ GET /data                                   │
+│  광서대 사용자 ──→ GET /data                                   │
 │                    URL: /tenant/gwangju/data                   │
 │                         │                                      │
-│  서울대 사용자 ──→ GET /data                                   │
+│  울서대 사용자 ──→ GET /data                                   │
 │                    URL: seoul.service.com/data                 │
 │                         │                                      │
 │                         ▼                                      │
@@ -523,21 +523,20 @@ async def get_data(tenant = Depends(get_current_tenant)):
 │  │  │                               │    │                     │
 │  │  │  등록된 서비스:                │    │                     │
 │  │  │   ├─ advisor (ServiceClient)  │    │                     │
-│  │  │   ├─ keli    (ServiceClient)  │    │                     │
 │  │  │   └─ chatbot (ServiceClient)  │    │                     │
 │  │  └──────────┬───────────────────┘    │                     │
 │  └─────────────┼────────────────────────┘                     │
 │                │                                               │
 │       ┌────────┼────────┐                                     │
 │       ▼        ▼        ▼                                     │
-│  ┌────────┐ ┌───────┐ ┌────────┐                             │
-│  │Advisor │ │ KELI  │ │Chatbot │    ← 각 서비스               │
-│  │        │ │       │ │        │                               │
-│  │/mt/    │ │/mt/   │ │/mt/    │    ← 표준 API (규약대로)     │
-│  │health  │ │health │ │health  │                               │
-│  │tenant/ │ │tenant/│ │tenant/ │                               │
-│  │activate│ │...    │ │...     │                               │
-│  └────────┘ └───────┘ └────────┘                             │
+│  ┌────────┐  ┌────────┐                                      │
+│  │Advisor │  │Chatbot │    ← 각 서비스                        │
+│  │        │  │        │                                        │
+│  │/mt/    │  │/mt/    │    ← 표준 API (규약대로)              │
+│  │health  │  │health  │                                        │
+│  │tenant/ │  │tenant/ │                                        │
+│  │activate│  │...     │                                        │
+│  └────────┘  └────────┘                                      │
 │                                                                │
 │  호출 가능한 기능:                                             │
 │  ┌────────────────────────────────────────────────┐           │
@@ -564,11 +563,11 @@ from mt_paas.market import ServiceMarketClient
 # Service Market에서 여러 서비스를 등록
 smc = ServiceMarketClient()
 smc.register_service("advisor", base_url="http://...:10300", api_key="key1")
-smc.register_service("keli",    base_url="http://...:10000", api_key="key2")
+smc.register_service("chatbot", base_url="http://...:10200", api_key="key2")
 
 # 모든 서비스 상태 확인
 results = await smc.health_check_all()
-# → {"advisor": {"status": "healthy"}, "keli": {"status": "healthy"}}
+# → {"advisor": {"status": "healthy"}, "chatbot": {"status": "healthy"}}
 
 # 특정 서비스에 테넌트 활성화
 await smc.activate_tenant("advisor", TenantActivation(
@@ -659,7 +658,7 @@ Q4. 위에서 core나 middleware를 쓰기로 했나?
 ```
 ┌──────────────┐     ① 서비스 신청      ┌──────────────┐
 │  대학 담당자  │ ──────────────────────→ │Service Market│
-│  (광주대학교) │                         │  (8501 포트)  │
+│  (광서대학교) │                         │  (8501 포트)  │
 └──────────────┘                         └──────┬───────┘
                                                 │
                                          ② 관리자 승인
@@ -684,7 +683,7 @@ Q4. 위에서 core나 middleware를 쓰기로 했나?
                                                 ▼
 ┌──────────────┐     ⑥ 접속 정보 전달    ┌──────────────┐
 │  대학 담당자  │ ←────────────────────── │Service Market│
-│  (광주대학교) │                         │              │
+│  (광서대학교) │                         │              │
 └──────────────┘                         └──────────────┘
 ```
 
